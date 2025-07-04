@@ -24,6 +24,8 @@ const authRoutes = require('./routes/authRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', true);
+
 // Middlewares de seguridad y optimización
 app.use(helmet()); // Seguridad con headers HTTP
 app.use(compression()); // Compresión gzip
