@@ -1,4 +1,5 @@
 const Articulo = require('../models/Articulo');
+const Impresion = require('../models/Impresion'); // Nuevo import
 const {
     createArticuloSchema,
     updateArticuloSchema,
@@ -280,12 +281,29 @@ class ArticuloController {
     // POST /api/articulos/print-labels - Imprimir etiquetas
     static async printLabels(req, res) {
         try {
-            const { sku, descripcion, color, size, qty, cantidad } = req.body;
+            const { sku, descripcion, color, size, qty, cantidad, articulo_id } = req.body;
 
             if (!sku || !descripcion || !color || !size || !qty || !cantidad) {
                 return res.status(400).json({
                     success: false,
                     message: 'Faltan datos requeridos'
+                });
+            }
+
+            // Validar que articulo_id sea proporcionado
+            if (!articulo_id || isNaN(articulo_id)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'El ID del artículo es requerido y debe ser válido'
+                });
+            }
+
+            // Verificar que el artículo existe
+            const articulo = await Articulo.getById(parseInt(articulo_id));
+            if (!articulo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Artículo no encontrado'
                 });
             }
 
@@ -312,10 +330,33 @@ class ArticuloController {
                 printLabel(sku, descripcion, color, size, qty, fecha, codigo, i, printerIp);  // i es el número de etiqueta
             }
 
+            // Registrar la impresión en la base de datos
+            try {
+                const impresion = await Impresion.create({
+                    articulo_id: parseInt(articulo_id),
+                    usuario_id: req.usuario.id,
+                    cantidad: parseInt(cantidad),
+                    fecha_impresion: new Date()
+                });
+
+                console.log('Impresión registrada:', impresion);
+
+                // Crear log de la acción
+                await Log.create({
+                    usuario_id: req.usuario.id,
+                    accion: `PRINT LABELS - Artículo ID: ${articulo_id}, Cantidad: ${cantidad}`
+                });
+
+            } catch (dbError) {
+                console.error('Error al registrar impresión en BD:', dbError);
+                // No detener la respuesta por error en BD, las etiquetas ya se enviaron a imprimir
+            }
+
             res.json({
                 success: true,
                 message: 'Etiquetas generadas exitosamente',
-                etiquetas
+                etiquetas,
+                impresion_registrada: true
             });
         } catch (error) {
             console.error('Error en printLabels:', error);
