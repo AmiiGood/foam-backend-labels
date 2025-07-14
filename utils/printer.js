@@ -66,7 +66,7 @@ function printLabel(
   fecha,
   codigo,
   numeroEtiqueta,
-  printerIp = "172.16.115.213",
+  printerIp = "172.16.115.112",
   printerPort = 9100
 ) {
   const client = new net.Socket();

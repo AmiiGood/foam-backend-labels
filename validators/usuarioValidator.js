@@ -66,7 +66,13 @@ const updateUsuarioSchema = Joi.object({
         })
 });
 
+const rolSchema = Joi.object({
+  nombre: Joi.string().required().min(1).max(100),
+  descripcion: Joi.string().optional().max(255)
+});
+
 module.exports = {
     usuarioSchema,
-    updateUsuarioSchema
+    updateUsuarioSchema,
+    rolSchema
 };

@@ -19,8 +19,8 @@ class Rol {
         return this.getById(result.insertId);
     }
 
-    static async update(id, { nombre }) {
-        await pool.execute('UPDATE roles SET nombre = ? WHERE id = ?', [nombre, id]);
+    static async update(id, { nombre, descripcion }) {
+        await pool.execute('UPDATE roles SET nombre = ?, descripcion = ? WHERE id = ?', [nombre, descripcion, id]);
         return this.getById(id);
     }
 

@@ -10,7 +10,6 @@ const {
   requestLogger,
   errorHandler,
   notFoundHandler,
-  createRateLimit,
 } = require("./middleware");
 
 // Importar rutas
@@ -31,7 +30,6 @@ app.set("trust proxy", true);
 app.use(helmet()); // Seguridad con headers HTTP
 app.use(compression()); // Compresión gzip
 app.use(cors()); // CORS
-app.use(createRateLimit()); // Rate limiting
 
 // Middlewares para parsing
 app.use(express.json({ limit: "10mb" }));
